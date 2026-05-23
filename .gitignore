@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Literature / reference files (not code)
+_import_*.ris
+01_方法论_因果推理/
+02_方法论_Agent框架/
+03_方法论_PBPK仿真/
+04_纳米粒子_BBB_数据/
+05_竞争文献/
+06_检索数据_XLS/
+
+# OS / temp files
+.DS_Store
+Thumbs.db
+.~*
+~$*
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Downloaded raw data files (re-downloadable)
+*.xlsx

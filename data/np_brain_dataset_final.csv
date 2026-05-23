@@ -1,0 +1,108 @@
+﻿paper,np_type,size_nm,zeta_mv,peg,ligand,ligand_count,kd_nM,brain_metric,metric_type,model,notes
+Wiley_PNAS_2013,gold,21.0,-12.9,no,transferrin,3.0,4.9,0.5,relative_brain_counts,mouse_iv,"5nm core, low avidity"
+Wiley_PNAS_2013,gold,25.3,-10.0,no,transferrin,6.0,3.1,0.6,relative_brain_counts,mouse_iv,5nm core
+Wiley_PNAS_2013,gold,44.6,-14.4,no,transferrin,10.0,1.7,1.0,relative_brain_counts,mouse_iv,"20nm core, reference group"
+Wiley_PNAS_2013,gold,43.6,-6.8,no,transferrin,20.0,1.5,1.1,relative_brain_counts,mouse_iv,20nm core
+Wiley_PNAS_2013,gold,48.3,-14.1,no,transferrin,30.0,0.71,1.3,relative_brain_counts,mouse_iv,"20nm core, near-optimal"
+Wiley_PNAS_2013,gold,46.3,-10.2,no,transferrin,100.0,0.018,0.4,relative_brain_counts,mouse_iv,"20nm core, excess avidity reduces brain entry"
+Wiley_PNAS_2013,gold,78.1,-5.3,no,transferrin,20.0,0.89,1.8,relative_brain_counts,mouse_iv,"50nm core, best size"
+Wiley_PNAS_2013,gold,85.4,-6.3,no,transferrin,200.0,0.014,0.7,relative_brain_counts,mouse_iv,"50nm core, excess Tf reduces penetration"
+Wiley_PNAS_2015,gold,75.1,-5.75,yes,none,0.0,,10.0,pct_bbb_crossing,mouse_iv,"mPEG control, no targeting"
+Wiley_PNAS_2015,gold,79.1,-5.77,yes,transferrin_normal,20.0,0.408,47.0,pct_bbb_crossing,mouse_iv,20Tf normal linkage
+Wiley_PNAS_2015,gold,78.1,-7.78,yes,transferrin_normal,200.0,0.029,50.0,pct_bbb_crossing,mouse_iv,200Tf normal linkage
+Wiley_PNAS_2015,gold,75.7,-11.25,yes,transferrin_cleavable,20.0,0.788,61.0,pct_bbb_crossing,mouse_iv,20Tf acid-cleavable linker
+Wiley_PNAS_2015,gold,77.2,-7.93,yes,transferrin_cleavable,120.0,0.096,93.0,pct_bbb_crossing,mouse_iv,120Tf acid-cleavable linker
+Wiley_PNAS_2015,gold,73.6,-7.47,yes,transferrin_cleavable,200.0,0.03,94.0,pct_bbb_crossing,mouse_iv,"200Tf acid-cleavable linker, best performer, ~1%ID in vivo"
+Wiley_PNAS_2015,gold,76.1,-6.26,yes,anti_TfR_antibody_normal,2.0,0.441,35.0,pct_bbb_crossing,mouse_iv,"2 anti-TfR Ab, normal linkage"
+Wiley_PNAS_2015,gold,84.4,-8.83,yes,anti_TfR_antibody_normal,10.0,0.039,38.0,pct_bbb_crossing,mouse_iv,"10 anti-TfR Ab, normal linkage"
+Khung_ACSNano_2023,porous_silicon,180.9,-10.0,yes,none,0.0,,13.7,pct_bbb_crossing,in_vitro_transwell,mPEG control
+Khung_ACSNano_2023,porous_silicon,170.1,-12.0,yes,transferrin,,,15.0,pct_bbb_crossing,in_vitro_transwell,"Tf low density (2.10 nmol/mg), Tf:mPEG=1:50"
+Khung_ACSNano_2023,porous_silicon,170.1,-12.0,yes,transferrin,,,24.4,pct_bbb_crossing,in_vitro_transwell,"Tf medium density (3.83 nmol/mg), Tf:mPEG=1:9"
+Khung_ACSNano_2023,porous_silicon,170.1,-12.0,yes,transferrin,,,23.6,pct_bbb_crossing,in_vitro_transwell,"Tf high density (4.92 nmol/mg), full Tf-PEG"
+Khung_ACSNano_2023,porous_silicon,299.3,-12.0,yes,transferrin,,,17.5,pct_bbb_crossing,in_vitro_transwell,"Tf high density, LARGE particles (300nm) → reduced transport"
+Najera_Pharmaceutics_2025_T4,liposome,90.0,-10.0,yes,none,0.0,,0.023,pct_ID_brain,mouse_iv_C57BL6,"PEGylated liposome, untargeted, 4h post-injection"
+Najera_Pharmaceutics_2025_T4,liposome,90.0,-10.0,yes,scFv_antibody,,,0.24,pct_ID_brain,mouse_iv_C57BL6,"scFv antibody-targeted liposome, 4h, ~10× vs untargeted"
+Najera_Pharmaceutics_2025_T4,liposome,100.0,5.0,no,TAT_peptide,,,0.1,pct_ID_brain,mouse_iv,"TAT peptide-functionalized, cationic, no improved uptake vs control"
+Najera_Pharmaceutics_2025_T4,PLGA,133.0,-29.0,no,poloxamer188,,,17.2,pct_ID_brain,rat_C6_glioma_iv,"PLGA+Poloxamer188 coating, MTX+PTX loaded, 48h, glioma model"
+Najera_Pharmaceutics_2025_T4,PLGA,221.0,-18.0,no,poloxamer188,,,17.2,pct_ID_brain,rat_C6_glioma_iv,PLGA+Poloxamer188 larger formulation variant
+Najera_Pharmaceutics_2025_T4,PEG_PLGA,100.0,-15.0,yes,none,0.0,,0.5,pct_ID_brain,rodent_iv,"PEG-PLGA unmodified, minimal brain penetration (<1%ID/g), ~0.5 estimated"
+Najera_Pharmaceutics_2025_T4,PAMAM_G4,4.3,0.0,no,OH_terminated,,,1.9,ug_per_g_brain,rat_9L_GL261_tumor,"PAMAM G4 OH-terminated dendrimer, 24h, 1.9 μg/g tumor"
+Najera_Pharmaceutics_2025_T4,PAMAM_G6,6.7,0.0,no,OH_terminated,,,17.6,ug_per_g_brain,mouse_GL261_tumor,"PAMAM G6 OH-terminated dendrimer, 24h, 17.6 μg/g tumor"
+Najera_Pharmaceutics_2025_T4,protein_cage,12.0,-8.0,no,H_ferritin,,,,qualitative_positive,mouse_iv,"H-Ferritin nanocage, effective BBB penetration, no exact %ID/g reported"
+Najera_Pharmaceutics_2025_T4,VLP,40.0,,no,JC_polyomavirus,,,0.0,pct_ID_brain,mouse_iv,"JC polyomavirus VLP, ~0% ID/g brain, not effective"
+Najera_Pharmaceutics_2025_T4,gold,15.0,0.0,yes,none,0.0,,0.04,pct_ID_brain,mouse_iv,"Gold NP PEGylated, no targeting, baseline"
+Najera_Pharmaceutics_2025_T4,gold,15.0,0.0,yes,anti_JAM_A_antibody,,,0.13,pct_ID_brain,mouse_iv,"Gold NP anti-JAM-A antibody, 0.13% ID/g (~3× vs untargeted)"
+Yousfan_MolPharm_2024,PLGA,151.0,-12.88,no,transferrin,,,4.32,AUC_brain_ug_h_ml,rodent_iv,API=Lamotrigine; EE=76.05%; AUC_ratio=0.0747
+Yousfan_MolPharm_2024,PLGA,150.0,-11.21,no,lactoferrin,,,6.37,AUC_brain_ug_h_ml,rodent_iv,API=Lamotrigine; EE=76.05%; AUC_ratio=0.1206
+Yousfan_MolPharm_2024,PLGA/PEG,109.0,-30.0,yes,lactoferrin,,,278.48,AUC_brain_ug_h_ml,rodent_iv,API=coumarin-6; EE=69.0%; AUC_ratio=1.4548
+Yousfan_MolPharm_2024,PLA/PEG,166.4,-22.08,yes,lactoferrin,,,458.98,AUC_brain_ug_h_ml,rodent_iv,API=coumarin-6; EE=70.0%; AUC_ratio=2.091
+Yousfan_MolPharm_2024,PLA/PEG,167.6,-20.45,yes,transferrin,,,1277.0,AUC_brain_ug_h_ml,rodent_iv,API=coumarin-6; EE=70.0%; AUC_ratio=3.1625
+Yousfan_MolPharm_2024,CD/PEG,179.7,1.0,yes,lactoferrin,,,9338.3,AUC_brain_ug_h_ml,rodent_iv,API=IR-775 chloride; EE=98.1%; AUC_ratio=26.6276
+Yousfan_MolPharm_2024,CD/PEG,179.7,1.0,yes,transferrin,,,4761.2,AUC_brain_ug_h_ml,rodent_iv,API=IR-775 chloride; EE=97.3%; AUC_ratio=13.9502
+Yousfan_MolPharm_2024,PLGA/PEG,90.0,-24.0,yes,lactoferrin,,,372.13,AUC_brain_ug_h_ml,rodent_iv,API=coumarin-6; EE=60.0%; AUC_ratio=1.1314
+Yousfan_MolPharm_2024,PLGA,157.0,-11.06,no,transferrin,,,3.48,AUC_brain_ug_h_ml,rodent_iv,API=Tramadol; EE=71.49%; AUC_ratio=0.0633
+Yousfan_MolPharm_2024,PLGA,158.0,-9.35,no,lactoferrin,,,5.24,AUC_brain_ug_h_ml,rodent_iv,API=Tramadol; EE=71.16%; AUC_ratio=0.1025
+Yousfan_MolPharm_2024,Dextran,179.0,-24.0,no,transferrin,,,3133.7,AUC_brain_ug_h_ml,rodent_iv,API=IR-775 chloride; EE=98.0%; AUC_ratio=13.2503
+Yousfan_MolPharm_2024,CD,179.0,-24.0,no,transferrin,,,4761.2,AUC_brain_ug_h_ml,rodent_iv,API=IR-775 chloride; EE=97.0%; AUC_ratio=13.9502
+Yousfan_MolPharm_2024,CD,179.0,-24.0,no,lactoferrin,,,9338.3,AUC_brain_ug_h_ml,rodent_iv,API=IR-775 chloride; EE=97.0%; AUC_ratio=26.6276
+Yousfan_MolPharm_2024_si2,phospholipids/cholesterol,190.0,-5.7,no,unknown,,,0.01,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.202; Release=12.5%
+Yousfan_MolPharm_2024_si2,PLGA/PEG,60.0,-20.0,yes,unknown,,,0.01,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.01; Release=10.0%
+Yousfan_MolPharm_2024_si2,other,189.0,-36.1,no,unknown,,,0.01,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.225; Release=20.0%
+Yousfan_MolPharm_2024_si2,Poloxamer,124.15,-24.6,no,unknown,,,0.013,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.03; Release=11.25%
+Yousfan_MolPharm_2024_si2,solid lipid/cholesterol,149.9,55.47,no,unknown,,,0.02,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.028; Release=25.0%
+Yousfan_MolPharm_2024_si2,other/other,225.0,37.2,no,unknown,,,0.02,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.114; Release=20.0%
+Yousfan_MolPharm_2024_si2,PLGA,201.5,-17.3,no,unknown,,,0.025,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.015; Release=12.5%
+Yousfan_MolPharm_2024_si2,PVP,20.0,-8.15,no,unknown,,,0.026,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.018; Release=20.0%
+Yousfan_MolPharm_2024_si2,PLGA,141.0,-10.32,no,unknown,,,0.027,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.02; Release=0.54%
+Yousfan_MolPharm_2024_si2,acrylamide,152.0,-10.0,no,unknown,,,0.035,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.027; Release=10.0%
+Yousfan_MolPharm_2024_si2,PLGA,133.9,-12.07,no,unknown,,,0.039,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.018; Release=0.58%
+Yousfan_MolPharm_2024_si2,PLGA,157.0,-11.06,no,unknown,,,0.063,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.033; Release=0.54%
+Yousfan_MolPharm_2024_si2,Poloxamer,95.7,-4.0,no,unknown,,,0.073,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.153; Release=4.17%
+Yousfan_MolPharm_2024_si2,PLGA/PEG,365.3,-14.87,yes,unknown,,,0.073,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.833; Release=3.13%
+Yousfan_MolPharm_2024_si2,PLGA,151.0,-12.88,no,unknown,,,0.075,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.031; Release=0.58%
+Yousfan_MolPharm_2024_si2,acrylamide/PEG,197.0,-15.2,yes,unknown,,,0.079,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.017; Release=14.29%
+Yousfan_MolPharm_2024_si2,solid lipid,217.53,-18.24,no,unknown,,,0.096,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.071; Release=1.8%
+Yousfan_MolPharm_2024_si2,PVP,70.0,-8.75,no,unknown,,,0.101,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.034; Release=20.0%
+Yousfan_MolPharm_2024_si2,PLGA,158.0,-9.35,no,unknown,,,0.102,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.057; Release=0.54%
+Yousfan_MolPharm_2024_si2,acrylamide/PEG,184.0,-12.9,yes,unknown,,,0.113,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.054; Release=14.29%
+Yousfan_MolPharm_2024_si2,solid lipid,19.0,-32.4,no,unknown,,,0.119,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.119; Release=12.5%
+Yousfan_MolPharm_2024_si2,solid lipid,19.04,-32.2,no,unknown,,,0.119,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.119; Release=12.5%
+Yousfan_MolPharm_2024_si2,PLGA,150.0,-11.21,no,unknown,,,0.121,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.038; Release=0.58%
+Yousfan_MolPharm_2024_si2,PLGA,106.0,-23.0,no,unknown,,,0.124,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.13; Release=5.0%
+Yousfan_MolPharm_2024_si2,PLGA/PEG,322.6,-15.78,yes,unknown,,,0.147,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.667; Release=3.13%
+Yousfan_MolPharm_2024_si2,PLGA/chitosan,142.0,24.0,no,unknown,,,0.151,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.119; Release=5.83%
+Yousfan_MolPharm_2024_si2,PVP,200.0,-9.52,no,unknown,,,0.153,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.015; Release=20.0%
+Yousfan_MolPharm_2024_si2,solid lipid/protien,108.1,-21.16,no,unknown,,,0.163,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.188; Release=3.44%
+Yousfan_MolPharm_2024_si2,chitosan,131.08,34.4,no,unknown,,,0.202,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.194; Release=5.42%
+Yousfan_MolPharm_2024_si2,solid lipid/phospholipids,92.28,-11.5,no,unknown,,,0.214,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.232; Release=18.18%
+Yousfan_MolPharm_2024_si2,PLGA/PEG,78.0,-24.2,yes,unknown,,,0.253,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=1.0; Release=2.22%
+Yousfan_MolPharm_2024_si2,PLGA/phospholipids,232.4,-1.76,no,unknown,,,0.298,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.15; Release=16.67%
+Yousfan_MolPharm_2024_si2,solid lipid/phospholipids,36.7,34.5,no,unknown,,,0.302,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.333; Release=0.83%
+Yousfan_MolPharm_2024_si2,chitosan,201.2,49.3,no,unknown,,,0.313,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.407; Release=2.67%
+Yousfan_MolPharm_2024_si2,PLGA/phospholipids,170.63,-37.7,no,unknown,,,0.329,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.227; Release=2.26%
+Yousfan_MolPharm_2024_si2,solid lipid,161.0,-18.7,no,unknown,,,0.381,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.121; Release=4.17%
+Yousfan_MolPharm_2024_si2,PLGA,89.67,-39.0,no,unknown,,,0.396,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.198; Release=0.31%
+Yousfan_MolPharm_2024_si2,PCL,212.2,-21.4,no,unknown,,,0.397,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.803; Release=0.88%
+Yousfan_MolPharm_2024_si2,PLGA/phospholipids,203.0,-2.52,no,unknown,,,0.408,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.376; Release=16.67%
+Yousfan_MolPharm_2024_si2,PLGA/PEG,78.0,-24.2,yes,unknown,,,0.471,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=1.556; Release=0.5%
+Yousfan_MolPharm_2024_si2,PLGA/PEG,89.0,-25.3,yes,unknown,,,0.498,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=1.5; Release=0.6%
+Yousfan_MolPharm_2024_si2,acrylamide/tween,220.0,-7.0,no,unknown,,,0.511,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.525; Release=3.08%
+Yousfan_MolPharm_2024_si2,chitosan,269.3,25.4,no,unknown,,,0.666,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.197; Release=2.92%
+Yousfan_MolPharm_2024_si2,PLGA,124.8,-20.4,no,unknown,,,0.669,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.72; Release=3.75%
+Yousfan_MolPharm_2024_si2,PLGA/PEG,89.0,-25.3,yes,unknown,,,0.685,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=1.429; Release=2.0%
+Yousfan_MolPharm_2024_si2,solid lipid/sodium alginate,167.7,-17.9,no,unknown,,,0.71,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.391; Release=5.63%
+Yousfan_MolPharm_2024_si2,phospholipids/tween,134.7,-18.0,no,unknown,,,0.745,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.49; Release=3.33%
+Yousfan_MolPharm_2024_si2,solid lipid,209.5,-23.85,no,unknown,,,0.805,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.903; Release=3.33%
+Yousfan_MolPharm_2024_si2,phospholipids/tween,148.7,-18.8,no,unknown,,,0.813,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=1.121; Release=3.33%
+Yousfan_MolPharm_2024_si2,other,336.0,1.0,no,unknown,,,0.911,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=1.5; Release=5.3%
+Yousfan_MolPharm_2024_si2,solid lipid/tween,131.2,-21.4,no,unknown,,,1.23,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=1.212; Release=3.33%
+Yousfan_MolPharm_2024_si2,PVP,103.4,-45.92,no,unknown,,,1.342,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.197; Release=3.75%
+Yousfan_MolPharm_2024_si2,PLGA,286.1,-29.11,no,unknown,,,1.515,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=1.581; Release=1.43%
+Yousfan_MolPharm_2024_si2,solid lipid/phospholipids,150.2,33.2,no,unknown,,,1.766,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=4.267; Release=1.37%
+Yousfan_MolPharm_2024_si2,solid lipid,61.3,-35.1,no,unknown,,,1.98,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=2.107; Release=0.14%
+Yousfan_MolPharm_2024_si2,solid lipid/tween,159.7,-24.0,no,unknown,,,1.2,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=2.704; Release=3.33%
+Yousfan_MolPharm_2024_si2,solid lipid/phospholipids,96.7,21.3,no,unknown,,,1.4,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=3.0; Release=1.37%
+Yousfan_MolPharm_2024_si2,phospholipids/solid lipid,196.8,-45.2,no,unknown,,,1.3,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=3.5; Release=0.5%
+Yousfan_MolPharm_2024_si2,PLGA,166.9,-32.12,no,unknown,,,1.4,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=1.2; Release=0.67%
+Yousfan_MolPharm_2024_si2,chitosan,75.37,25.35,no,unknown,,,0.62,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.589; Release=8.5%
+Yousfan_MolPharm_2024_si2,PLGA,97.36,-17.98,no,unknown,,,0.314,AUC_brain_blood_ratio,rodent_iv,Cmax_ratio=0.241; Release=0.17%

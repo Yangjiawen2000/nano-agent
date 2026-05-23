@@ -1,0 +1,255 @@
+{
+  "causal_memory": {
+    "source": "pbpk_expert_ols",
+    "var_names": [
+      "LogSize",
+      "Zeta",
+      "PEG",
+      "LogLigDensity",
+      "Kbind",
+      "Ktrans",
+      "Klyso",
+      "CL",
+      "AUCbrain"
+    ],
+    "adjacency": [
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.4972602719762493,
+        0.0,
+        0.0,
+        0.06160209772930145,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.9269232992889735,
+        0.4,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.9934029204634001,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.3260808054800945,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.6226541500932238
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.4415494857690528
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.012595044356791782
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.10516666751685522
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "edges": [
+      {
+        "from": "LogSize",
+        "to": "Kbind",
+        "weight": -0.4972602719762493
+      },
+      {
+        "from": "LogSize",
+        "to": "CL",
+        "weight": 0.06160209772930145
+      },
+      {
+        "from": "Zeta",
+        "to": "Ktrans",
+        "weight": 0.9269232992889735
+      },
+      {
+        "from": "Zeta",
+        "to": "Klyso",
+        "weight": 0.4
+      },
+      {
+        "from": "PEG",
+        "to": "CL",
+        "weight": -0.9934029204634001
+      },
+      {
+        "from": "LogLigDensity",
+        "to": "Kbind",
+        "weight": 0.3260808054800945
+      },
+      {
+        "from": "Kbind",
+        "to": "AUCbrain",
+        "weight": 0.6226541500932238
+      },
+      {
+        "from": "Ktrans",
+        "to": "AUCbrain",
+        "weight": 0.4415494857690528
+      },
+      {
+        "from": "Klyso",
+        "to": "AUCbrain",
+        "weight": -0.012595044356791782
+      },
+      {
+        "from": "CL",
+        "to": "AUCbrain",
+        "weight": -0.10516666751685522
+      }
+    ]
+  },
+  "validation": {
+    "LogSize→Kbind": {
+      "exp_sign": -1,
+      "weight": -0.4972602719762493,
+      "ok": true
+    },
+    "LogLigDensity→Kbind": {
+      "exp_sign": 1,
+      "weight": 0.3260808054800945,
+      "ok": true
+    },
+    "Zeta→Ktrans": {
+      "exp_sign": 0,
+      "weight": 0.9269232992889735,
+      "ok": true
+    },
+    "Zeta→Klyso": {
+      "exp_sign": 0,
+      "weight": 0.4,
+      "ok": true
+    },
+    "LogSize→CL": {
+      "exp_sign": 1,
+      "weight": 0.06160209772930145,
+      "ok": true
+    },
+    "PEG→CL": {
+      "exp_sign": -1,
+      "weight": -0.9934029204634001,
+      "ok": true
+    },
+    "Kbind→AUCbrain": {
+      "exp_sign": 1,
+      "weight": 0.6226541500932238,
+      "ok": true
+    },
+    "Ktrans→AUCbrain": {
+      "exp_sign": 1,
+      "weight": 0.4415494857690528,
+      "ok": true
+    },
+    "Klyso→AUCbrain": {
+      "exp_sign": -1,
+      "weight": -0.012595044356791782,
+      "ok": true
+    },
+    "CL→AUCbrain": {
+      "exp_sign": -1,
+      "weight": -0.10516666751685522,
+      "ok": true
+    }
+  },
+  "stage1_corr": {
+    "Log(Size)": {
+      "r": 0.020468068291305257,
+      "p": 0.8755838248382989
+    },
+    "Zeta": {
+      "r": -0.25119993708125793,
+      "p": 0.05084536848244675
+    },
+    "PEG": {
+      "r": -0.10896581234867327,
+      "p": 0.4031903453547743
+    }
+  },
+  "pc_edges": {
+    "LogSize→AUCbrain": "directed",
+    "PEG→AUCbrain": "directed",
+    "Kbind→AUCbrain": "directed"
+  },
+  "metadata": {
+    "n_synthetic": 2000,
+    "n_actual": 2000,
+    "var_names": [
+      "LogSize",
+      "Zeta",
+      "PEG",
+      "LogLigDensity",
+      "Kbind",
+      "Ktrans",
+      "Klyso",
+      "CL",
+      "AUCbrain"
+    ]
+  }
+}
