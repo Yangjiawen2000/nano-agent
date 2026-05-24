@@ -578,7 +578,8 @@ def run_agent(
 
     client = _make_client(backend)
 
-    model = "deepseek-chat" if backend == "deepseek" else "claude-sonnet-4-6"
+    _default_model = os.environ.get("DEEPSEEK_MODEL", "deepseek-v4-pro")
+    model = _default_model if backend == "deepseek" else "claude-sonnet-4-6"
     tools = TOOLS_OPENAI    if backend == "deepseek" else TOOLS_ANTHROPIC
 
     if verbose:
@@ -636,7 +637,11 @@ def run_agent(
                 print(msg.content)
 
             # build serialisable assistant message
+            # reasoning models (deepseek-v4-pro) return reasoning_content that
+            # must be passed back in subsequent turns
             asst_msg: dict = {"role": "assistant", "content": msg.content or ""}
+            if getattr(msg, "reasoning_content", None):
+                asst_msg["reasoning_content"] = msg.reasoning_content
             if msg.tool_calls:
                 asst_msg["tool_calls"] = [
                     {
