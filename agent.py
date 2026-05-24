@@ -551,6 +551,7 @@ def run_agent(
     initial_design:  dict,
     goal:            str  = "Maximise AUC_brain for BBB crossing",
     max_iterations:  int  = 10,
+    max_simulations: int | None = None,
     verbose:         bool = True,
     backend:         str  = "auto",
 ) -> dict:
@@ -564,7 +565,11 @@ def run_agent(
     goal : str
         Natural-language optimisation goal.
     max_iterations : int
-        Hard cap on ReAct cycles.
+        Hard cap on ReAct cycles (LLM calls).
+    max_simulations : int or None
+        If set, stop after this many pbpk_simulate calls regardless of
+        max_iterations. Causal graph queries do not count toward this budget,
+        making comparisons across agent variants fair.
     verbose : bool
         Print live trace to stdout.
     backend : str
@@ -674,9 +679,13 @@ def run_agent(
                 break
 
             # process tool calls
+            _sim_budget_hit = False
             for tc in msg.tool_calls:
-                tool_name   = tc.function.name
-                tool_inputs = json.loads(tc.function.arguments)
+                tool_name = tc.function.name
+                try:
+                    tool_inputs = json.loads(tc.function.arguments)
+                except Exception:
+                    continue
 
                 if verbose:
                     print(f"\n[Tool] {tool_name}({json.dumps(tool_inputs, ensure_ascii=False)})")
@@ -693,12 +702,21 @@ def run_agent(
                     if auc > best_auc:
                         best_auc    = auc
                         best_design = d.copy()
+                    if max_simulations and len(trajectory) >= max_simulations:
+                        _sim_budget_hit = True
 
                 messages.append({
                     "role":         "tool",
                     "tool_call_id": tc.id,
                     "content":      json.dumps(result, ensure_ascii=False, default=str),
                 })
+                if _sim_budget_hit:
+                    break
+
+            if _sim_budget_hit:
+                if verbose:
+                    print(f"\n[Agent] Simulation budget ({max_simulations}) reached — stopping")
+                break
 
         else:
             # ── Anthropic backend ────────────────────────────────────────────

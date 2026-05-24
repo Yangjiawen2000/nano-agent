@@ -205,6 +205,7 @@ import json as _json
 
 
 def run_ablation_agent(initial_design: dict, max_iterations: int = 10,
+                       max_simulations: int | None = None,
                        verbose: bool = True) -> dict:
     """ReAct Agent without query_causal_graph — ablation study."""
     backend = _detect_backend()
@@ -295,9 +296,13 @@ def run_ablation_agent(initial_design: dict, max_iterations: int = 10,
             if finish == "stop" or not msg.tool_calls:
                 break
 
+            _sim_budget_hit = False
             for tc in msg.tool_calls:
-                tool_name   = tc.function.name
-                tool_inputs = _json.loads(tc.function.arguments)
+                tool_name = tc.function.name
+                try:
+                    tool_inputs = _json.loads(tc.function.arguments)
+                except Exception:
+                    continue
 
                 if verbose:
                     print(f"\n[Tool] {tool_name}")
@@ -316,6 +321,8 @@ def run_ablation_agent(initial_design: dict, max_iterations: int = 10,
                         best_design = result["design_used"].copy()
                     trajectory.append({"sim_call": sim_count, "AUC_brain": auc,
                                        "best_so_far": best_so_far, "step": iteration})
+                    if max_simulations and sim_count >= max_simulations:
+                        _sim_budget_hit = True
 
                 messages.append({
                     "role":         "tool",
@@ -323,6 +330,11 @@ def run_ablation_agent(initial_design: dict, max_iterations: int = 10,
                     "content":      _json.dumps(result, ensure_ascii=False,
                                                 default=str),
                 })
+                if _sim_budget_hit:
+                    break
+
+            if _sim_budget_hit:
+                break
 
         else:  # anthropic
             response = client.messages.create(

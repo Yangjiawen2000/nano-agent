@@ -436,6 +436,7 @@ Note: the causal graph tool is NOT available. Explore through simulation.
 
 def _run_anon_agent(anon_initial: dict, system_prompt: str,
                     tools: list, max_iterations: int = 20,
+                    max_simulations: int | None = None,
                     verbose: bool = False) -> dict:
     import textwrap as _tw
 
@@ -511,10 +512,14 @@ def _run_anon_agent(anon_initial: dict, system_prompt: str,
             if finish == "stop" or not msg.tool_calls:
                 break
 
+            _sim_budget_hit = False
             for tc in msg.tool_calls:
-                tool_name   = tc.function.name
-                tool_inputs = json.loads(tc.function.arguments)
-                result      = anon_dispatch(tool_name, tool_inputs)
+                tool_name = tc.function.name
+                try:
+                    tool_inputs = json.loads(tc.function.arguments)
+                except Exception:
+                    continue
+                result = anon_dispatch(tool_name, tool_inputs)
 
                 if verbose:
                     print(f"[{tool_name}] → {json.dumps(result, default=str)[:300]}")
@@ -528,9 +533,16 @@ def _run_anon_agent(anon_initial: dict, system_prompt: str,
                         best_design = result["design_used"].copy()
                     trajectory.append({"sim_call": sim_count, "AUC_brain": auc,
                                        "best_so_far": best_so_far, "step": iteration})
+                    if max_simulations and sim_count >= max_simulations:
+                        _sim_budget_hit = True
 
                 messages.append({"role": "tool", "tool_call_id": tc.id,
                                   "content": json.dumps(result, default=str)})
+                if _sim_budget_hit:
+                    break
+
+            if _sim_budget_hit:
+                break
 
         else:  # anthropic — convert tools to Anthropic format
             import anthropic as _anth

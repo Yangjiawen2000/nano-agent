@@ -131,7 +131,8 @@ def _run_condition(cond: dict, initial: dict, n_seeds: int, sim_budget: int) -> 
         if domain and causal:
             raw = run_agent(initial,
                             goal="Maximise AUC_brain for BBB-targeted NP",
-                            max_iterations=sim_budget, verbose=False)
+                            max_iterations=100, max_simulations=sim_budget,
+                            verbose=False)
             traj, best_sf = [], 0.0
             for pt in raw["trajectory"]:
                 best_sf = max(best_sf, pt["AUC_brain"])
@@ -146,7 +147,8 @@ def _run_condition(cond: dict, initial: dict, n_seeds: int, sim_budget: int) -> 
             })
 
         elif domain and not causal:
-            raw = run_ablation_agent(initial, max_iterations=sim_budget, verbose=False)
+            raw = run_ablation_agent(initial, max_iterations=100,
+                                     max_simulations=sim_budget, verbose=False)
             runs.append(raw)
 
         else:
@@ -155,8 +157,8 @@ def _run_condition(cond: dict, initial: dict, n_seeds: int, sim_budget: int) -> 
             tools     = ANON_TOOLS_OPENAI if causal else ANON_ABLATION_TOOLS
             system    = _ANON_CAUSAL_SYSTEM if causal else _ANON_ABLATION_SYSTEM
             raw = _run_anon_agent(anon_init, system_prompt=system,
-                                  tools=tools, max_iterations=sim_budget,
-                                  verbose=False)
+                                  tools=tools, max_iterations=100,
+                                  max_simulations=sim_budget, verbose=False)
             # convert anon best_design → real for AUC_ratio computation
             real_design = _anon_to_real_design(raw["best_design"])
             raw["best_design_real"] = real_design
