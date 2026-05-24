@@ -562,6 +562,184 @@ class CausalMemory:
                 break
         return recs
 
+    # ── Online / dynamic update ───────────────────────────────────────────────
+
+    def update_from_observations(self,
+                                  observations: list[dict],
+                                  min_obs: int = 6) -> dict:
+        """
+        Bayesian-blend update of edge weights from agent simulation history.
+
+        Algorithm
+        ---------
+        1. Convert raw observations to the 9-variable causal space.
+        2. Verify each variable has sufficient variance (std > 0.02 after
+           standardisation) — skip underdetermined variables.
+        3. For each node that has parents in the DAG, re-estimate its parents'
+           regression coefficients via OLS on the local data.
+        4. Blend new weights with the prior:
+               W_new = (1 - α) × W_prior + α × W_ols_local
+           where α = min(0.35, 0.04 × n_obs) grows with sample size but is
+           capped at 0.35 so the prior is never fully overridden.
+        5. Enforce sign preservation for the 8 biologically validated edges
+           (prevent sign flip due to local data sparsity).
+
+        Parameters
+        ----------
+        observations : list[dict]
+            Each dict must contain at least:
+              AUC_brain, k_bind, k_trans, k_lyso, CL,
+              and the raw design keys: size_nm, zeta_mv, peg, ligand_density
+        min_obs : int
+            Minimum observations required (default 6).
+
+        Returns
+        -------
+        dict with status, n_obs, alpha, edge_changes, updated_bottleneck.
+        """
+        n = len(observations)
+        if n < min_obs:
+            return {
+                "status":       "insufficient_data",
+                "n_obs":        n,
+                "min_required": min_obs,
+                "message":      f"Need ≥{min_obs} simulations (have {n}). Run more sims first.",
+            }
+
+        # ── Build data matrix (9 causal variables) ───────────────────────────
+        rows = []
+        for obs in observations:
+            d = obs.get("design", obs)   # support both {design:..., AUC_brain:...} and flat
+            try:
+                peg_raw = d.get("peg", 1)
+                peg_val = 0.0 if str(peg_raw).strip().lower() in ("no", "false", "0") else 1.0
+                row = {
+                    "LogSize":       np.log(max(float(d.get("size_nm", 80)), 1.0)),
+                    "Zeta":          float(d.get("zeta_mv", -15)),
+                    "PEG":           peg_val,
+                    "LogLigDensity": np.log1p(float(d.get("ligand_density", 30))),
+                    "Kbind":         float(obs.get("k_bind")  or d.get("k_bind",  0.8)),
+                    "Ktrans":        float(obs.get("k_trans") or d.get("k_trans", 0.1)),
+                    "Klyso":         float(obs.get("k_lyso")  or d.get("k_lyso",  0.2)),
+                    "CL":            float(obs.get("CL")      or d.get("CL",       0.23)),
+                    "AUCbrain":      float(obs.get("AUC_brain", obs.get("AUCbrain", 0.0))),
+                }
+                rows.append(row)
+            except Exception:
+                continue
+
+        if len(rows) < min_obs:
+            return {"status": "parse_error",
+                    "message": f"Only {len(rows)}/{n} rows parsed successfully."}
+
+        df = pd.DataFrame(rows)
+
+        # ── Standardise (z-score) ─────────────────────────────────────────────
+        col_means = df.mean()
+        col_stds  = df.std().clip(lower=1e-8)
+        X_std     = ((df - col_means) / col_stds).values   # shape (n, 9)
+        idx       = {v: i for i, v in enumerate(VAR_NAMES)}
+
+        # Identify which variables have sufficient variance to be informative
+        sufficient_var = set()
+        for vi, vname in enumerate(VAR_NAMES):
+            if col_stds[vname] > 0.02:
+                sufficient_var.add(vname)
+
+        # ── Re-estimate parent regression coefficients (OLS) ─────────────────
+        parents_map: dict[str, list[str]] = {}
+        for src, dst, _ in EXPERT_EDGES:
+            parents_map.setdefault(dst, []).append(src)
+
+        W_local = np.zeros((self.d, self.d))
+        n_updated = 0
+        for dst, parents in parents_map.items():
+            # Only update edges where the child AND at least one parent have variance
+            active_parents = [p for p in parents if p in sufficient_var and dst in sufficient_var]
+            if not active_parents:
+                continue
+            j      = idx[dst]
+            col_ip = [idx[p] for p in active_parents]
+            Y      = X_std[:, j]
+            Xp     = X_std[:, col_ip]
+            try:
+                reg = LinearRegression(fit_intercept=False).fit(Xp, Y)
+                for k, p in enumerate(active_parents):
+                    W_local[idx[p], j] = float(reg.coef_[k])
+                    n_updated += 1
+            except Exception:
+                pass
+
+        # ── Adaptive alpha ────────────────────────────────────────────────────
+        # Starts near 0 with few obs, plateaus at 0.35 with many obs
+        alpha = min(0.35, 0.04 * n)
+
+        # ── Bayesian blend ────────────────────────────────────────────────────
+        W_prior   = self.W.copy()
+        W_blended = (1.0 - alpha) * W_prior + alpha * W_local
+
+        # ── Sign preservation for validated edges ─────────────────────────────
+        # Expert edge sign constraints (from EXPERT_EDGES, non-zero expected sign)
+        sign_constraints = {
+            (src, dst): sign
+            for src, dst, sign in EXPERT_EDGES
+            if sign != 0
+        }
+        flips_prevented = []
+        for (src, dst), expected_sign in sign_constraints.items():
+            i_s, j_d = idx[src], idx[dst]
+            if abs(W_blended[i_s, j_d]) > 1e-6:
+                actual_sign = np.sign(W_blended[i_s, j_d])
+                if actual_sign != expected_sign:
+                    W_blended[i_s, j_d] = W_prior[i_s, j_d]   # revert to prior
+                    flips_prevented.append(f"{src}→{dst}")
+
+        # ── Record changes ────────────────────────────────────────────────────
+        edge_changes = []
+        for i in range(self.d):
+            for j in range(self.d):
+                delta = float(W_blended[i, j] - W_prior[i, j])
+                if abs(delta) > 0.015:
+                    edge_changes.append({
+                        "edge":        f"{self.var_names[i]}→{self.var_names[j]}",
+                        "prior_w":     round(float(W_prior[i, j]),    4),
+                        "local_ols_w": round(float(W_local[i, j]),    4),
+                        "updated_w":   round(float(W_blended[i, j]),  4),
+                        "delta":       round(delta, 4),
+                    })
+
+        # ── Apply update ──────────────────────────────────────────────────────
+        self.W              = W_blended
+        self._update_count  = getattr(self, '_update_count', 0) + 1
+        self._W_prior_saved = W_prior   # keep prior for reference
+
+        # ── New bottleneck ranking ────────────────────────────────────────────
+        new_bottleneck = self.query_bottleneck("AUCbrain", top_k=8)
+
+        return {
+            "status":            "updated",
+            "n_obs":             n,
+            "alpha":             round(alpha, 3),
+            "n_edges_refined":   n_updated,
+            "significant_changes": edge_changes,
+            "sign_flips_prevented": flips_prevented,
+            "sufficient_variance_vars": sorted(sufficient_var),
+            "updated_bottleneck": new_bottleneck,
+            "interpretation": (
+                f"Causal weights blended {round((1-alpha)*100)}% prior + "
+                f"{round(alpha*100)}% local-OLS from {n} agent simulations. "
+                "Sign-validated edges were locked. Run more simulations to increase α."
+            ),
+        }
+
+    def reset_to_prior(self) -> bool:
+        """Revert W to the saved prior (before any online updates)."""
+        if hasattr(self, '_W_prior_saved'):
+            self.W = self._W_prior_saved.copy()
+            self._update_count = 0
+            return True
+        return False
+
     # ── I/O ───────────────────────────────────────────────────────────────────
 
     def to_dict(self) -> dict:

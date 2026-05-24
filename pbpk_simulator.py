@@ -189,12 +189,66 @@ def map_CL(size_nm: float, peg: str) -> float:
     return float(np.clip(CL_ref * size_factor * peg_factor, 0.05, 2.0))
 
 
-def design_to_params(size_nm: float,
-                     zeta_mv: float,
+def map_drug_loading_factor(drug_loading: float) -> float:
+    """
+    药物有效载量倍增因子（% w/w）。
+    10% 载量 → factor=1.0；>20% 时配方稳定性下降 → factor 衰减。
+    来源：Stylianopoulos Expert Opin Drug Deliv 2013（载量-稳定性权衡）
+    """
+    dl = max(0.0, float(drug_loading))
+    payload = min(dl / 10.0, 1.5)
+    stability = 1.0 if dl <= 20 else max(0.5, 1.0 - (dl - 20) * 0.025)
+    return float(payload * stability)
+
+
+def map_shape_factors(particle_shape: str) -> tuple:
+    """
+    粒子形状对 (CL_factor, k_bind_factor) 的影响。
+    杆形/蠕虫形：血管边缘化增强、循环时间延长（↓CL ~30%），
+    但与受体的接触面积/方向受限（↓k_bind 约12%）。
+    来源：Decuzzi PNAS 2010；Geng Nature Nano 2007（filomicelles）
+    """
+    shape = str(particle_shape).strip().lower()
+    return {
+        'sphere': (1.00, 1.00),
+        'rod':    (0.70, 0.88),
+        'disk':   (0.82, 0.93),
+        'worm':   (0.65, 0.80),
+    }.get(shape, (1.00, 1.00))
+
+
+def map_surface_chemistry_factors(hydrophobicity: float,
+                                   surface_coating: str) -> tuple:
+    """
+    表面化学对 (CL_factor, k_endo_factor) 的影响。
+    疏水性 → 蛋白冠形成 → 吞噬细胞识别 → ↑CL（二次方关系）。
+    来源：Walkey ACS Nano 2014（蛋白吸附∝疏水性²）
+    两性离子涂层：近零蛋白吸附 → ↓CL ~35%。
+    脂质涂层：膜融合 → 内体逃逸增强 → ↑k_endo。
+    来源：Schlenoff Langmuir 2014；Semple Nature Biotech 2010
+    """
+    h = float(np.clip(hydrophobicity, 0.0, 1.0))
+    CL_hydro = 1.0 + 0.6 * h ** 2
+
+    cl_coat, endo_coat = {
+        'peg':          (0.90, 1.00),
+        'lipid':        (0.95, 1.25),
+        'zwitterionic': (0.65, 0.90),
+        'polymer':      (0.88, 1.00),
+        'none':         (1.00, 1.00),
+    }.get(str(surface_coating).strip().lower(), (1.00, 1.00))
+    return float(CL_hydro * cl_coat), float(endo_coat)
+
+
+def design_to_params(size_nm:          float,
+                     zeta_mv:          float,
                      peg,
-                     ligand_type: str,
+                     ligand_type:      str,
                      ligand_density,
-                     k_endo: float = 0.12,
+                     particle_shape:   str   = 'sphere',
+                     hydrophobicity:   float = 0.0,
+                     surface_coating:  str   = 'none',
+                     k_endo:    float = 0.12,
                      k_recycle: float = 0.08) -> PBPKParams:
     """
     NP设计参数 → PBPKParams
@@ -203,14 +257,16 @@ def design_to_params(size_nm: float,
       k_endo = 0.12 h⁻¹  受体内吞速率（多数文献报告 0.08~0.15 h⁻¹）
       k_recycle = 0.08 h⁻¹  受体再循环（维持受体池）
     """
+    shape_cl,  shape_kb  = map_shape_factors(particle_shape)
+    chem_cl,   chem_endo = map_surface_chemistry_factors(hydrophobicity, surface_coating)
     return PBPKParams(
-        k_bind    = map_k_bind(size_nm, ligand_density, ligand_type),
+        k_bind    = map_k_bind(size_nm, ligand_density, ligand_type) * shape_kb,
         k_off     = map_k_off(ligand_type),
-        k_endo    = k_endo,
+        k_endo    = k_endo * chem_endo,
         k_trans   = map_k_trans(zeta_mv),
         k_lyso    = map_k_lyso(zeta_mv),
         k_recycle = k_recycle,
-        CL        = map_CL(size_nm, peg),
+        CL        = map_CL(size_nm, peg) * shape_cl * chem_cl,
     )
 
 
@@ -266,45 +322,53 @@ def pbpk_ode(t, y, p: PBPKParams):
 # 4.  主仿真函数
 # ═══════════════════════════════════════════════════════════════
 
-def pbpk_simulate(size_nm:        float,
-                  zeta_mv:        float,
+def pbpk_simulate(size_nm:          float,
+                  zeta_mv:          float,
                   peg,
-                  ligand_type:    str,
+                  ligand_type:      str,
                   ligand_density,
-                  t_span:         tuple = (0, 24),
-                  n_points:       int   = 300,
-                  verbose:        bool  = False) -> dict:
+                  drug_loading:     float = 0.0,
+                  particle_shape:   str   = 'sphere',
+                  hydrophobicity:   float = 0.0,
+                  surface_coating:  str   = 'none',
+                  patient_type:     str   = 'adult_healthy',
+                  t_span:           tuple = (0, 24),
+                  n_points:         int   = 300,
+                  verbose:          bool  = False) -> dict:
     """
-    输入：NP设计参数
+    输入：NP设计参数（+可选：药物载量、粒子形状、表面化学、虚拟患者）
     输出：脑内时程曲线 + AUC
 
     参数
     ----
-    size_nm        : 流体力学直径 (nm)，范围建议 10~300
-    zeta_mv        : ζ电位 (mV)，范围建议 -40~+10
-    peg            : PEG修饰 ('yes'/'no')
-    ligand_type    : 配体种类 ('transferrin'/'lactoferrin'/'none' 等)
-    ligand_density : 配体密度 ('low'/'medium'/'high' 或整数，每NP的配体数)
-    t_span         : 仿真时间区间 (h)，默认 0~24h
-    n_points       : 时间采样点数
-    verbose        : 打印参数摘要
-
-    返回
-    ----
-    dict 含:
-      't'        : 时间数组 (h)
-      'C_brain'  : 脑内NP浓度时程（归一化）
-      'C_blood'  : 血液NP浓度时程（归一化）
-      'AUC'      : 脑内AUC（0~t_end），单位 h（归一化）
-      'AUC_ratio': 脑内AUC / 血浆AUC
-      'params'   : PBPKParams 对象
-      'success'  : ODE求解是否成功
+    size_nm         : 流体力学直径 (nm)
+    zeta_mv         : ζ电位 (mV)
+    peg             : PEG修饰 ('yes'/'no')
+    ligand_type     : 配体种类
+    ligand_density  : 配体密度（每NP的配体数）
+    drug_loading    : 药物载量 (% w/w，0=未指定)，影响 AUC_drug_brain 输出
+    particle_shape  : 粒子形状 ('sphere'/'rod'/'disk'/'worm')
+    hydrophobicity  : 表面疏水性 (0–1)，影响蛋白冠/MPS清除
+    surface_coating : 表面涂层 ('none'/'peg'/'lipid'/'zwitterionic'/'polymer')
+    patient_type    : 虚拟患者 ('adult_healthy'/'pediatric_healthy'/... 见 virtual_patients.py)
+    t_span          : 仿真时间区间 (h)
+    n_points        : 时间采样点数
+    verbose         : 打印参数摘要
     """
-    params = design_to_params(size_nm, zeta_mv, peg, ligand_type, ligand_density)
+    params = design_to_params(size_nm, zeta_mv, peg, ligand_type, ligand_density,
+                               particle_shape, hydrophobicity, surface_coating)
+
+    if patient_type not in ('adult_healthy', 'healthy_adult', 'adult', ''):
+        try:
+            from virtual_patients import apply_patient_scaling
+            params = apply_patient_scaling(params, patient_type)
+        except Exception:
+            pass
 
     if verbose:
-        print(f"\n── PBPK参数（{size_nm}nm, ζ={zeta_mv}mV, "
-              f"PEG={peg}, {ligand_type}, density={ligand_density}）──")
+        print(f"\n── PBPK参数（{size_nm}nm, ζ={zeta_mv}mV, PEG={peg}, "
+              f"{ligand_type}, density={ligand_density}, "
+              f"shape={particle_shape}, patient={patient_type}）──")
         params.summary()
 
     y0 = [1.0, 1.0, 0.0, 0.0, 0.0]  # NP_blood=1, R_free=1, 其余=0
@@ -329,17 +393,22 @@ def pbpk_simulate(size_nm:        float,
     AUC_blood = float(np.trapezoid(C_blood, sol.t))
     AUC_ratio = AUC / AUC_blood if AUC_blood > 1e-10 else 0.0
 
+    drug_factor   = map_drug_loading_factor(drug_loading) if drug_loading > 0 else 0.0
+    AUC_drug_brain = round(AUC * drug_factor, 6)
+
     return {
-        't':         sol.t,
-        'C_brain':   C_brain,
-        'C_blood':   C_blood,
-        'R_free':    sol.y[1],
-        'NP_R':      sol.y[2],
-        'NP_vesicle':sol.y[3],
-        'AUC':       AUC,
-        'AUC_ratio': AUC_ratio,
-        'params':    params,
-        'success':   sol.success,
+        't':            sol.t,
+        'C_brain':      C_brain,
+        'C_blood':      C_blood,
+        'R_free':       sol.y[1],
+        'NP_R':         sol.y[2],
+        'NP_vesicle':   sol.y[3],
+        'AUC':          AUC,
+        'AUC_ratio':    AUC_ratio,
+        'AUC_drug_brain': AUC_drug_brain,
+        'params':       params,
+        'success':      sol.success,
+        'patient_type': patient_type,
     }
 
 
@@ -557,10 +626,12 @@ def predict_brain_delivery(design: dict) -> dict:
     result = pbpk_simulate(**design)
 
     return {
-        'AUC_brain':    round(result['AUC'],       6),
-        'AUC_ratio':    round(result['AUC_ratio'],  4),
-        'C_brain_peak': round(float(result['C_brain'].max()), 6),
-        't_peak_h':     round(float(result['t'][result['C_brain'].argmax()]), 2),
+        'AUC_brain':      round(result['AUC'],            6),
+        'AUC_ratio':      round(result['AUC_ratio'],       4),
+        'AUC_drug_brain': round(result['AUC_drug_brain'],  6),
+        'C_brain_peak':   round(float(result['C_brain'].max()), 6),
+        't_peak_h':       round(float(result['t'][result['C_brain'].argmax()]), 2),
+        'patient_type':   result.get('patient_type', 'adult_healthy'),
         'params': {
             'k_bind':   round(result['params'].k_bind,   3),
             'k_off':    round(result['params'].k_off,    3),
