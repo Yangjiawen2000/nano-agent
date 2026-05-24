@@ -27,6 +27,7 @@ import json
 import math
 import sys
 import os
+import time
 import textwrap
 from typing import Any
 
@@ -622,12 +623,25 @@ def run_agent(
 
         # ── LLM call ────────────────────────────────────────────────────────
         if backend == "deepseek":
-            response = client.chat.completions.create(
-                model    = model,
-                messages = [{"role": "system", "content": SYSTEM_PROMPT}] + messages,
-                tools    = tools,
-                tool_choice = "auto",
-            )
+            response = None
+            for _attempt in range(5):
+                try:
+                    response = client.chat.completions.create(
+                        model    = model,
+                        messages = [{"role": "system", "content": SYSTEM_PROMPT}] + messages,
+                        tools    = tools,
+                        tool_choice = "auto",
+                    )
+                    if response is not None:
+                        break
+                except Exception as _e:
+                    if verbose:
+                        print(f"[API error attempt {_attempt+1}/5]: {_e}")
+                time.sleep(2 ** _attempt)
+            if response is None:
+                if verbose:
+                    print("[Agent] API returned None after 5 retries — stopping early")
+                break
             choice  = response.choices[0]
             msg     = choice.message
             finish  = choice.finish_reason      # "stop" | "tool_calls"

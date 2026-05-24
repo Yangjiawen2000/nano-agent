@@ -253,13 +253,26 @@ def run_ablation_agent(initial_design: dict, max_iterations: int = 10,
             print(f"\n{'─'*60}  iteration {iteration}")
 
         if backend == "deepseek":
-            response = client.chat.completions.create(
-                model       = model,
-                messages    = [{"role": "system", "content": _ABLATION_SYSTEM}]
-                              + messages,
-                tools       = tools,
-                tool_choice = "auto",
-            )
+            response = None
+            for _attempt in range(5):
+                try:
+                    response = client.chat.completions.create(
+                        model       = model,
+                        messages    = [{"role": "system", "content": _ABLATION_SYSTEM}]
+                                      + messages,
+                        tools       = tools,
+                        tool_choice = "auto",
+                    )
+                    if response is not None:
+                        break
+                except Exception as _e:
+                    if verbose:
+                        print(f"[API error attempt {_attempt+1}/5]: {_e}")
+                time.sleep(2 ** _attempt)
+            if response is None:
+                if verbose:
+                    print("[Ablation Agent] API failed after 5 retries — stopping early")
+                break
             choice = response.choices[0]
             msg    = choice.message
             finish = choice.finish_reason
