@@ -17,9 +17,11 @@
 ```
 ├── pbpk_simulator.py        # Phase 2: PBPK 仿真器（受体介导转胞吞 ODE 模型）
 ├── causal_graph.py          # Phase 3: 因果图学习（机制驱动 + OLS 权重估计）
+├── agent.py                 # Phase 4: ReAct Agent（DeepSeek / Anthropic 双后端）
 ├── data/
 │   ├── np_brain_dataset_final.csv   # 107条文献实验数据
 │   ├── causal_results.json          # 学习到的因果图（JSON）
+│   ├── agent_trace.json             # Agent 优化轨迹（最新运行结果）
 │   ├── causal_dag_final.png         # 因果 DAG 可视化
 │   ├── causal_corr_heatmap.png      # 相关性热图
 │   ├── pbpk_sensitivity.png         # PBPK 参数敏感性分析图
@@ -46,8 +48,12 @@
   · 2000条 PBPK 合成数据
   · 机制驱动 DAG + OLS 权重
   · 10/10 条边生物学验证通过
-       ↓ Phase 4 (待做)
-  ReAct Agent                ← 推理-行动循环
+       ↓ Phase 4 ✅
+  agent.py                   ← ReAct 推理-行动循环
+  · DeepSeek / Anthropic 双后端
+  · 5 工具：pbpk_simulate, query_causal_graph, lookup_parameter,
+           check_feasibility, compare_designs
+  · 演示：62x AUC_brain 提升（0.028→1.727）
 ```
 
 ---
@@ -55,7 +61,7 @@
 ## 快速开始
 
 ```bash
-pip install numpy scipy matplotlib networkx pandas causal-learn scikit-learn
+pip install numpy scipy matplotlib networkx pandas causal-learn scikit-learn openai
 ```
 
 ### 运行 PBPK 仿真
@@ -76,6 +82,30 @@ print(f"AUC_ratio = {result['AUC_ratio']:.4f}")
 ```python
 python causal_graph.py
 # 输出: data/causal_dag_final.png, data/causal_results.json
+```
+
+### 运行 ReAct Agent（Phase 4）
+
+```bash
+export DEEPSEEK_API_KEY=sk-your-key-here   # 或 ANTHROPIC_API_KEY
+python agent.py
+```
+
+```python
+from agent import run_agent
+
+result = run_agent(
+    initial_design={
+        "size_nm": 150, "zeta_mv": 5, "peg": 0,
+        "ligand_type": "transferrin", "ligand_density": 120,
+    },
+    goal="Maximise AUC_brain for BBB-targeted NP",
+    max_iterations=10,
+)
+print(f"Best AUC  = {result['best_AUC']:.4f}")
+print(f"Best design = {result['best_design']}")
+# Best AUC  = 1.7272
+# Best design = {size_nm:80, zeta_mv:-15, peg:'yes', ligand_type:'transferrin', ligand_density:30}
 ```
 
 ### 调用 CausalMemory

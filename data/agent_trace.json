@@ -1,0 +1,57 @@
+{
+  "best_design": {
+    "size_nm": 80.0,
+    "zeta_mv": -15.0,
+    "peg": "yes",
+    "ligand_type": "transferrin",
+    "ligand_density": 30.0
+  },
+  "best_AUC": 1.727212,
+  "trajectory": [
+    {
+      "design": {
+        "size_nm": 150,
+        "zeta_mv": 5,
+        "peg": 0,
+        "ligand_type": "transferrin",
+        "ligand_density": 120
+      },
+      "AUC_brain": 0.027579,
+      "step": 0
+    },
+    {
+      "design": {
+        "size_nm": 150.0,
+        "zeta_mv": 5.0,
+        "peg": "no",
+        "ligand_type": "transferrin",
+        "ligand_density": 120.0
+      },
+      "AUC_brain": 0.027579,
+      "step": 2
+    },
+    {
+      "design": {
+        "size_nm": 80.0,
+        "zeta_mv": -15.0,
+        "peg": "yes",
+        "ligand_type": "transferrin",
+        "ligand_density": 30.0
+      },
+      "AUC_brain": 1.727212,
+      "step": 6
+    },
+    {
+      "design": {
+        "size_nm": 60.0,
+        "zeta_mv": -18.0,
+        "peg": "yes",
+        "ligand_type": "anti-TfR",
+        "ligand_density": 30.0
+      },
+      "AUC_brain": 1.049188,
+      "step": 10
+    }
+  ],
+  "iterations": 10
+}
