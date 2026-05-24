@@ -103,11 +103,11 @@ REAL_TO_ANON_KINETIC = {
 
 def _to_real_design(anon: dict) -> dict:
     return {
-        "size_nm":        float(anon["param_A"]),
-        "zeta_mv":        float(anon["param_B"]),
-        "peg":            int(anon["param_C"]),
-        "ligand_type":    ANON_TO_REAL_LIGAND.get(str(anon["param_D"]), "transferrin"),
-        "ligand_density": float(anon["param_E"]),
+        "size_nm":        float(anon.get("param_A", 80)),
+        "zeta_mv":        float(anon.get("param_B", -15)),
+        "peg":            int(anon.get("param_C", 1)),
+        "ligand_type":    ANON_TO_REAL_LIGAND.get(str(anon.get("param_D", "type_1")), "transferrin"),
+        "ligand_density": float(anon.get("param_E", 30)),
     }
 
 
@@ -470,12 +470,25 @@ def _run_anon_agent(anon_initial: dict, system_prompt: str,
 
     for iteration in range(1, max_iterations + 1):
         if backend == "deepseek":
-            response = client.chat.completions.create(
-                model       = model,
-                messages    = [{"role": "system", "content": system_prompt}] + messages,
-                tools       = tools,
-                tool_choice = "auto",
-            )
+            response = None
+            for _attempt in range(5):
+                try:
+                    response = client.chat.completions.create(
+                        model       = model,
+                        messages    = [{"role": "system", "content": system_prompt}] + messages,
+                        tools       = tools,
+                        tool_choice = "auto",
+                    )
+                    if response is not None:
+                        break
+                except Exception as _e:
+                    if verbose:
+                        print(f"[API error attempt {_attempt+1}/5]: {_e}")
+                time.sleep(2 ** _attempt)
+            if response is None:
+                if verbose:
+                    print("[Anon Agent] API failed after 5 retries — stopping early")
+                break
             choice = response.choices[0]
             msg    = choice.message
             finish = choice.finish_reason
