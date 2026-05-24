@@ -54,8 +54,8 @@ from baselines_anon import (
 # ─────────────────────────────────────────────────────────────────────────────
 
 INITIAL_DESIGN = {
-    "size_nm": 150, "zeta_mv": 5, "peg": 0,
-    "ligand_type": "transferrin", "ligand_density": 120,
+    "size_nm": 80, "zeta_mv": -15, "peg": 1,
+    "ligand_type": "none", "ligand_density": 30,
 }
 
 CONDITIONS = [
